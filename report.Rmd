@@ -1,0 +1,207 @@
+---
+title: "Diffrac"
+author: "Miravet-Verde, Samuel"
+date: "March 15, 2016"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+### Introduction
+
+Deep sequencing technology is able to sequence each base at least 100 times. This gives a very good resolution to do omic studies. The output of the machine are, basically, files with a column with each position of the bacterial genome and a second and third values with the expression at that base for + and - strand.
+
+The goal of this project is to be able to discriminate different signals (starting signals, termination signals, decay) from deep sequencing transcriptomics files. 
+
+### Test
+
+This is just a space to test how we are going to work:
+
+The workspace where we are working:
+```{r}
+setwd("/home/smiravet/crg/diffrac")
+```
+
+Functions:
+```{r}
+plot_coverage <- function(mini, maxi){
+
+  # Plot the figure
+  plot(dsspilesmpn[which(mini<dsspilesmpn$position & dsspilesmpn$position<maxi),]$plus~dsspilesmpn[which(mini<dsspilesmpn$position & dsspilesmpn$position<maxi),]$position,
+       ylim = range(min(dsspilesmpn[which(mini<dsspilesmpn$position & dsspilesmpn$position<maxi),]$minus*-1), max(dsspilesmpn[which(mini<dsspilesmpn$position & dsspilesmpn$position<maxi),]$plus)),
+       main = paste("Coverage plot",mini,'-', maxi),
+       xlab = "MPN genome",
+       ylab='coverage',
+       col = 'lightskyblue',
+       type='h')
+  lines(dsspilesmpn[which(mini<dsspilesmpn$position & dsspilesmpn$position<maxi),]$minus*-1~dsspilesmpn[which(mini<dsspilesmpn$position & dsspilesmpn$position<maxi),]$position, type='h', col = 'rosybrown1')
+}
+
+
+```
+
+```{r}
+dsspilesmpn <- read.delim("~/crg/diffrac/datasets/dsspilesmpn.txt")
+colnames(dsspilesmpn) <- c('position', 'minus', 'plus')
+
+dsspilesmpn$plus <- log2(dsspilesmpn$plus+1)
+dsspilesmpn$minus <- log2(dsspilesmpn$minus+1)
+
+minlim <- 0
+maxlim <- 816394
+
+minlim <- minlim+1500
+maxlim <- maxlim+1500
+plot_coverage(minlim, maxlim)
+```
+
+# Conceptual definition of the problem:
+
+Conceptually we can have the followin types of behaviour in the expression profile:
+
+- Gradual positive: expression increasing gradually from one base to the next. No genomic features expected to have this profile.
+- Strictly positive: a peak in the expression profile after which the expression is maintained after time. Expected for promoters.
+- Transient positive peak: it shows a positive peak followed by a reduction of the levels (negative peak) but without arriving to zero. Expected for promoters.
+
+- Static: expression maintained. Expected for genes or intergenic (0 expression) regions.
+
+- Transient negative peak: it shows a negative peak but fully or partially recovered at the next bases. No genomic features expected to have this profile.
+- Strictly negative: a drastic drop in the expression, the next step should be 0. This signal should come from an intrinsic terminator.
+- Gradual negative: a gradual decay in expression.
+
+```{r}
+plot4d <- function(x, lg = 1, t = 'l'){
+  # Given a vector x, plot the 1st, 2nd and 3rd derivative
+  # If x is a vector of length n and differences = 1, then the computed result is equal to the successive differences x[(1+lag):n] - x[1:(n-lag)].
+  # t allows to define the type of plot we want (hist, points, line), line by default
+  
+  dx <- diff(x, lg)
+  ddx <- diff(dx, lg)
+  dddx <- diff(ddx, lg)
+
+  par(mfrow=c(2,2))
+  plot(x, t=t)
+  plot(dx, t=t)
+  plot(ddx, t=t)
+  plot(dddx, t=t)
+}
+
+```
+
+## Gradual positive
+
+This depends in the gradual change. If it is one by one the profile for the first derivative will be fixed at the change value and to 0 in the ddx and dddx
+
+```{r}
+gradualpositive <- 0:100
+plot4d(gradualpositive)
+```
+
+If we have a irregular increment:
+```{r}
+gradualpositive <- sort(sample(0:1000, 100))
+plot4d(gradualpositive)
+plot4d(gradualpositive,5)
+```
+
+We see that we have an irregular profile but the key is that the first derivative has always positive values:
+```{r}
+diff(gradualpositive)
+```
+
+It can be maintained after time and the peak will drop from positive to 0 in the dx
+```{r}
+gradualpositive <- c(gradualpositive, rep(max(gradualpositive), 20))  # We add the maximum value 20 times 
+plot4d(gradualpositive)
+```
+
+
+## Strictly positive
+
+In this case we have to see a peak in expression maintained after time:
+
+```{r}
+stictlypositive <- c(rep(0,20), rep(40,60), rep(0,20))
+plot4d(stictlypositive)
+```
+
+## Transient positive
+
+In this case we have to see a peak in expression followed by a small decay:
+
+```{r}
+transientpositive <- c(rep(0,20), 40, 40, 35, 30, rep(20,60), rep(0,20))
+plot4d(transientpositive)
+```
+
+## Static
+
+In this case we see no change between values (all dx 0)
+```{r}
+static <- c(rep(0,100))
+plot4d(static)
+```
+
+The same independently the value (only x changes)
+```{r}
+static <- c(rep(100,100))
+plot4d(static)
+```
+
+## Transient negative
+
+In this case we have to see a drop in expression followed by a small recovery:
+
+```{r}
+transientnegative <- c(rep(30,20), 1, 1, 2, rep(10,20))
+plot4d(transientnegative)
+```
+
+## Strictly negative
+
+In this case we have to see a drop in expression maintained after time:
+
+```{r}
+strictlynegative <- c(rep(40,60), rep(0,40))
+plot4d(strictlynegative)
+```
+
+## Gradual negative
+
+This depends in the gradual change. If it is one by one the profile for the first derivative will be fixed at the change value and to 0 in the ddx and dddx
+
+```{r}
+gradualnegative <- 100:0
+plot4d(gradualnegative)
+```
+
+If we have a irregular increment:
+```{r}
+gradualnegative <- sort(sample(1000:1, 100), decreasing = T)
+plot4d(gradualnegative)
+plot4d(gradualnegative,5)
+```
+
+We see that we have an irregular profile but the key is that the first derivative has always negative values:
+```{r}
+diff(gradualnegative)
+```
+
+It can be maintained after time and the peak will raise from negative to 0 in the dx
+```{r}
+gradualnegative <- c(gradualnegative, rep(min(gradualnegative), 20))  # We add the maximum value 20 times 
+plot4d(gradualnegative)
+```
+
+We usually see this fitting and logarithmic decay:
+```{r}
+C<-3
+k<-2
+x<-seq(100,1200,1)/1000
+y<-C*(1-exp(-k*x))+rnorm(length(x),sd=0.1)
+y <- sort(sample(unique(y),100), decreasing=T)
+
+gradualnegative <- c(rep(max(y), 20), y, rep(0,20))  # We add the maximum value 20 times 
+plot4d(gradualnegative)
+```
+
