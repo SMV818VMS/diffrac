@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-import random
-
+from random import randint as r
 
 # The idea is to create a toy dataset including the two types of termination
 # we can see in the RNA seq profiles to test two different things:
@@ -19,10 +18,11 @@ fo = open('./toyset.txt','w')
 sharp = [2000, 4000, 6000, 8000]
 decay = [1000, 3000, 5000, 7000]
 window = 100
+no_exp = 500
 
-expression =  
+expression = [r(100,200) for x in range(9000)]
 
+for i in sharp:
+    expression[i:i+no_exp] = [0]*no_exp
 
-
-for i in list(range(1, 100)):
 
