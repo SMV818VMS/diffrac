@@ -29,7 +29,7 @@ while x >= 0:
 decay = decay[1:]+[0]
 
 # We will put the information in the toyset file
-fo = open('./toyset.txt','w')
+fo = open('./datasets/toyset.txt','w')
 
 # Define the properties of the population and the position for 2 types of
 # termination, decay and sharp. We define the list of positions to be able to test they work:
