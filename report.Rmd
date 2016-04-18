@@ -47,11 +47,11 @@ colnames(dsspilesmpn) <- c('position', 'minus', 'plus')
 dsspilesmpn$plus <- log2(dsspilesmpn$plus+1)
 dsspilesmpn$minus <- log2(dsspilesmpn$minus+1)
 
-minlim <- 0
-maxlim <- 816394
+minlim <- 794302
+maxlim <- 796431
 
-minlim <- minlim+1500
-maxlim <- maxlim+1500
+minlim <- minlim-500
+maxlim <- maxlim+500
 plot_coverage(minlim, maxlim)
 ```
 
