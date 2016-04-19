@@ -24,15 +24,6 @@ from itertools import izip
 # GENERAL FUNCTIONS #
 #####################
 
-def pairwise(iterable):
-    """ s -> (s0,s1),(s1,s2),(s2,s3)...(sN-1,sN)"""
-    a, b = tee(iterable)
-    next(b, None)
-    return izip(a, b)
-
-
-
-
 
 def intergenic_mean(filename, header=True):
     """
@@ -53,17 +44,25 @@ def intergenic_mean(filename, header=True):
     """
 
     annotations = []
+    previous_end = None
+    number_ann = 0
+    sum_distan = 0
 
     with open(filename, 'r') as fi:
         for line in fi:
             if header == True:
                 header = False
             else:
-                l.append()
+                gene, current_start, current_end = line.strip().split()
 
+                # Compute mean without considering the overlapping genes
+                if previous_end and previous_end < int(current_start):
+                    number_ann += 1
+                    sum_distan += (int(current_start)-int(previous_end))
 
+                previous_end = int(current_end)
 
-
+    return(sum_distan/float(number_ann))
 
 
 #####################
