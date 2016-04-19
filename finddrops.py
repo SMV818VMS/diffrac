@@ -83,21 +83,24 @@ def decay_score(your_list, index):
 
     a = standard deviation for the expression in that window
     b = minimum number in the first derivative function
+    c = difference between last expression value and first 0
 
     This two values allow to differentiate between a sharp and a
     decay termination:
 
-    --> high a and low b = decay
-        The change in expression decays gradually but with no big changes
-    --> low a and high b = sharp
-        The change in expression is abrupt and with a big difference
+    --> high a, low b and b != c ==> decay
+        The change in expression decays gradually but with no big changes, this hardens the match between maximum change (minimum derivative)
+        and the drop in the index position
+    --> low a, high b and b == c ==> sharp
+        The change in expression is abrupt and with a big difference, this makes easier the match between minimum derivative and the index position.
     """
 
     a = np.std(your_list[:index+1])                    # +1 include last expression value
     first_derivative = np.diff(your_list[:index+2])     # +2 include first 0
     b = min(first_derivative)
+    c = list(first_derivative)[index]
 
-    return([a, b])
+    return([a, b, c])
 
 
 def find_drops(annotation_file, expression_file, expression_index, expression_threshold=0.0, expression_determinant=4, decay_window=100, header_ann=True, header_exp=True):
@@ -138,10 +141,10 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
 
         # Only analyze the window if the expression drops below the threshold in the no_exp_window after a value with expression:
         if current_window[:decay_window+1].count(expression_threshold) == 0.0 and current_window[decay_window-1] != 0 and np.mean(current_window[decay_window+1:]) <= expression_threshold:
-            stdsc, dropsc = decay_score(current_window, decay_window)
+            stdsc, maxsc, dropsc = decay_score(current_window, decay_window)
             identifier = 'SIGN'+str(c)
             last_expression = i+decay_window+1
-            results[identifier] = [i, i+sliding_window, last_expression, stdsc, dropsc]
+            results[identifier] = [i, i+sliding_window, last_expression, stdsc, maxsc, dropsc]
             c += 1
 
         i+=1

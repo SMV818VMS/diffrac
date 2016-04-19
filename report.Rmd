@@ -19,7 +19,7 @@ This is just a space to test how we are going to work:
 
 The workspace where we are working:
 ```{r}
-setwd("/home/smiravet/crg/diffrac")
+setwd("/home/smiravet/crg/diffraction")
 ```
 
 Functions:
@@ -41,7 +41,7 @@ plot_coverage <- function(mini, maxi){
 ```
 
 ```{r}
-dsspilesmpn <- read.delim("~/crg/diffrac/datasets/dsspilesmpn.txt")
+dsspilesmpn <- read.delim("./datasets/dsspilesmpn.txt")
 colnames(dsspilesmpn) <- c('position', 'minus', 'plus')
 
 dsspilesmpn$plus <- log2(dsspilesmpn$plus+1)
