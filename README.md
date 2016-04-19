@@ -28,7 +28,11 @@ The interpretation for this values is:
 
 The goal is to have a simple rule to discriminate between:
 
+
+### Decay drop
 ![decay drop](figures/decay)
+
+### Sharp drop
 ![sharp drop](figures/sharp)
 
 
