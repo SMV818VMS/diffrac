@@ -8,8 +8,13 @@ Diffraction includes several function to work and perform differential analysis 
 
 At the moment, we have the following functions:
 
- - [*_finddrops_*](#finddrops) : detect drops in the expression profile
  - [*_create_toyset_*](#create_toyset) : generates a set of annotation, fasta genome and expression file with known features
+ - [*_finddrops_*](#finddrops) : detect drops in the expression profile
+ - [*_findmotifs_*](#findmotifs) : clustering of drops and search of common motifs between groups by MEME
+
+## create\_toyset
+
+Very basic script to generate a toy set of annotation, expression and fasta genome with known features.
 
 ## finddrops
 
@@ -65,6 +70,6 @@ And this result in the dictionary:
 
   > 'SIGN8': [7899, 8124, 7998, 8000, 29.395014138295107, -179.0, -179.0]
 
-## create\_toyset
+## findmotifs
 
-Very basic script to generate a toy set of annotation, expression and fasta genome with known features.
+Script that performs basic clustering methods to define groups in the result provide by [*_finddrops_*](#finddrops) and runs a MEME motif search in the sequences provided.
