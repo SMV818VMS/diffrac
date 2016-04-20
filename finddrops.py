@@ -6,7 +6,7 @@
 #
 # Author : Miravet-Verde, Samuel
 # Written : 04/18/2016
-# Last updated : 04/19/2016
+# Last updated : 04/20/2016
 #
 # Test script to detect drops in the expression/toyset files
 #
@@ -18,6 +18,8 @@
 
 import sys, os
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn
 
 #####################
 # GENERAL FUNCTIONS #
@@ -93,6 +95,8 @@ def decay_score(your_list, index):
         and the drop in the index position
     --> low a, high b and b == c ==> sharp
         The change in expression is abrupt and with a big difference, this makes easier the match between minimum derivative and the index position.
+
+    We also have the decay start that marks the first nucleotide after which the expression profiles starts to decay
     """
 
     a = np.std(your_list[:index+1])                    # +1 include last expression value
@@ -100,7 +104,42 @@ def decay_score(your_list, index):
     b = min(first_derivative)
     c = list(first_derivative)[index]
 
-    return([a, b, c])
+    # Define the position where the decay starts:
+    # 1. Find the last positive value in the first derivative:
+    positive_indexes = [i for i, e in enumerate(first_derivative) if e > 0]
+    # 2. The maximum will correspond to the last position, we have to sum one to point to the
+    # first nucleotide after which the expression only decreases
+    decay_start = max(positive_indexes)+1
+
+    return([a, b, c, decay_start])
+
+
+def plot_drop(start, your_list, main_title, last_expression, decay_start):
+    """
+    Plot the drop
+        start = defines the first position for the x label
+        your_list = the list of point to plot
+    """
+
+    # Define the data we want to plot
+    x = list(range(start, start+len(your_list)))
+    y = your_list
+
+    # Define the figure, the labels and plot it
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111)
+
+    ax1.set_title(main_title)
+    ax1.set_xlabel('genome position (pb)')
+    ax1.set_ylabel('expression counts')
+
+    ax1.plot(x, y, c='k', label='expression', linewidth=2)
+    ax1.axvline(x=last_expression, c='b', label='last_expression', linewidth=2)
+    ax1.axvline(x=decay_start, c='r', label='decay_start', linewidth=2)
+
+    leg = ax1.legend(fontsize='large')
+
+    plt.show()
 
 
 def find_drops(annotation_file, expression_file, expression_index, expression_threshold=0.0, expression_determinant=4, decay_window=100, header_ann=True, header_exp=True):
@@ -141,12 +180,15 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
 
         # Only analyze the window if the expression drops below the threshold in the no_exp_window after a value with expression:
         if current_window[:decay_window+1].count(expression_threshold) == 0.0 and current_window[decay_window-1] != 0 and np.mean(current_window[decay_window+1:]) <= expression_threshold:
-            stdsc, maxsc, dropsc = decay_score(current_window, decay_window)
+            stdsc, maxsc, dropsc, decaysc = decay_score(current_window, decay_window)
             identifier = 'SIGN'+str(c)
             last_expression = i+decay_window+1
-            results[identifier] = [i, i+sliding_window, last_expression, stdsc, maxsc, dropsc]
+            decay_start = i+decaysc
+            results[identifier] = [i, i+sliding_window, decay_start, last_expression, stdsc, maxsc, dropsc]
             c += 1
 
+            # Plot the drop
+            plot_drop(i, current_window, identifier, last_expression, decay_start)
         i+=1
 
     print(results)
