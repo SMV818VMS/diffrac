@@ -81,22 +81,22 @@ def decay_score(your_list, index):
     Define the decay score for a list of numbers
 
     The decay score include to numbers:
-    [a, b]
+    [stdsc, maxsc, dropsc, decaysc]
 
-    a = standard deviation for the expression in that window
-    b = minimum number in the first derivative function
-    c = difference between last expression value and first 0
+    stdsc   = standard deviation for the expression in that window
+    maxsc   = minimum number in the first derivative function, i.e. maximum drop
+    dropsc  = difference between last expression value and first 0
+    decaysc = the decay start that marks the first nucleotide after which the expression profiles starts to decay with the factor
 
-    This two values allow to differentiate between a sharp and a
-    decay termination:
-
-    --> high a, low b and b != c ==> decay
+    This two values allow to differentiate between a sharp and a decay termination:
+    --> high stdsc, low maxsc and maxsc != dropsc ==> decay
         The change in expression decays gradually but with no big changes, this hardens the match between maximum change (minimum derivative)
         and the drop in the index position
-    --> low a, high b and b == c ==> sharp
+    --> low stdsc, high maxsc and maxsc == dropsc ==> sharp
         The change in expression is abrupt and with a big difference, this makes easier the match between minimum derivative and the index position.
 
-    We also have the decay start that marks the first nucleotide after which the expression profiles starts to decay
+    Additionally, if the termination is sharp, the decaysc will match the last expression base, thing that will not occur if the termination
+    is in decay.
     """
 
     a = np.std(your_list[:index+1])                    # +1 include last expression value
@@ -119,6 +119,9 @@ def plot_drop(start, your_list, main_title, last_expression, decay_start):
     Plot the drop
         start = defines the first position for the x label
         your_list = the list of point to plot
+        main_title = title for the plot
+        last_expression = defines the position where the non expression starts
+        decay_start =  defines the position with the last positive 1st derivative (after this, the expression drops)
     """
 
     # Define the data we want to plot
@@ -146,13 +149,22 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
     """
     Given a pile up file,
     returns the positions with potential termination signals
+
+    Parameters:
+    annotation_file:        file including the annotation of the genome (TSS and TTS), used to define the window of work
+    expression_file:        non fractionates RNA Seq file
+    expression_index:       index of the column with the expression values in the expression file
+    expression_threshold:   value in expression to consider a position non expressed
+    expression_determinant: factor that divides the intergenic region to delimit the window
+    decay_window:           window previous to the non expressed window considered
+    header_ann:             boolean, define if the annotation file has headers or not
+    header_exp:             boolean, define if the expression file has headers or not
     """
 
     # 1. First we have to define the mean distance between annotations to set up a correct
     # window size to run the algorithm
 
     intergenic_distance_mean = intergenic_mean(annotation_file)
-
 
     # 2. With this value we have the expected size of regions with expression equal 0.
     # The algorithm runs windows along the genome trying to detect these regions falling to 0 and looking a
