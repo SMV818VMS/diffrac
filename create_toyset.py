@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 
+from random import choice
 from random import randint as r
 from math import exp as e
+from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.Alphabet import generic_dna
+from Bio.SeqRecord import SeqRecord
 
+###########################################################
+# EXPRESSION FILE
+###########################################################
 
 # The idea is to create a toy dataset including the two types of termination
 # we can see in the RNA seq profiles to test two different things:
@@ -52,3 +60,47 @@ for i in decay_pos:
 # Create expression file:
 for i in range(1, genome_size+1):
     fo.write(str(i)+'\t'+str(expression[i-1])+'\n')
+
+fo.close()
+
+###########################################################
+# GENOME FILE
+###########################################################
+
+# Create a random genome
+
+genome = ''.join(choice(['A','C','G','T']) for _ in range(genome_size))
+
+# Add motifs to be detected
+
+# Define the motifs:
+sharp_motif = 'CCAATCGCTAAATCGCTGTTGGTATTTTTATT'
+decay_motif = 'GATAGATAGATAGATAGATAGATAGATAGATA'
+
+# Add the motifs:
+
+def add_motif(genome, motif, index):
+    """
+    Replace from the index to index+len(motif) in the genome
+    with the motif selected
+    """
+
+    try:
+        # If this can be done is because index is an integer
+        index = index-len(motif)
+        return genome[:index]+motif+genome[index+len(motif):]
+    except:
+        # If we arrive here is becuse index is a list
+        for i in index:
+            i = i-len(motif)
+            genome=genome[:i]+motif+genome[i+len(motif):]
+        return genome
+
+genome = add_motif(genome, sharp_motif, sharp_pos)
+genome = add_motif(genome, decay_motif, decay_pos)
+
+# Create a biopython object to write the sequence in fasta format
+handle = open('./datasets/toy_genome.fasta','w')
+seq = SeqRecord(Seq(genome, generic_dna), id='ToyGenome')
+SeqIO.write(seq, handle, "fasta")
+handle.close()

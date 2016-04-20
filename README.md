@@ -9,8 +9,7 @@ Diffraction includes several function to work and perform differential analysis 
 At the moment, we have the following functions:
 
  - [*_finddrops_*](#finddrops) : detect drops in the expression profile
-
-
+ - [*_create_toyset_*](#create_toyset) : generates a set of annotation, fasta genome and expression file with known features
 
 ## finddrops
 
@@ -65,3 +64,7 @@ And this result in the dictionary:
 And this result in the dictionary:
 
   > 'SIGN8': [7899, 8124, 7998, 8000, 29.395014138295107, -179.0, -179.0]
+
+## create\_toyset
+
+Very basic script to generate a toy set of annotation, expression and fasta genome with known features.
