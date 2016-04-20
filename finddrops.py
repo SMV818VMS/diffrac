@@ -142,7 +142,7 @@ def plot_drop(start, your_list, main_title, last_expression, decay_start):
 
     leg = ax1.legend(fontsize='large')
 
-    plt.show()
+    plt.savefig('./results_finddrops/'+main_title+'.png')
 
 
 def find_drops(annotation_file, expression_file, expression_index, expression_threshold=0.0, expression_determinant=4, decay_window=100, header_ann=True, header_exp=True):
@@ -176,8 +176,6 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
     no_exp_window  = int(round(intergenic_distance_mean/expression_determinant))
     sliding_window = int(round(decay_window + no_exp_window))
 
-    print(no_exp_window, decay_window, sliding_window)
-
     # Load the expression profile and start the sliding window process
     # While processing, append the results to the dictionary of results
     results = {}
@@ -195,7 +193,7 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
             stdsc, maxsc, dropsc, decaysc = decay_score(current_window, decay_window)
             identifier = 'SIGN'+str(c)
             last_expression = i+decay_window+1
-            decay_start = i+decaysc
+            decay_start = i+decaysc+1
             results[identifier] = [i, i+sliding_window, decay_start, last_expression, stdsc, maxsc, dropsc]
             c += 1
 
@@ -203,8 +201,7 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
             plot_drop(i, current_window, identifier, last_expression, decay_start)
         i+=1
 
-    print(results)
-
+    return results
 
 #####################
 #      CLASSES      #
