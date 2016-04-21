@@ -81,7 +81,7 @@ At the end, we obtain (at maximum) 5 most represented motifs in the subsequences
 In our toy model, we detect the following motifs:
 
 **Decay drop**
-![decay motif](./meme_results/decay_signals/logo1.png)
+![decay motif](./results_meme/decay_signals/logo1.png)
 
 **Sharp drop**
-![sharp motif](./meme_results/sharp_signals/logo1.png)
+![sharp motif](./results_meme/sharp_signals/logo1.png)
