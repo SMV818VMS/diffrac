@@ -234,7 +234,7 @@
 </background_frequencies>
 </model>
 <motifs>
-<motif id="motif_1" name="1" width="14" sites="4" ic="28.0" re="27.7" llr="77" e_value="3.7e-006" bayes_threshold="7.7211" elapsed_time="0.136000">
+<motif id="motif_1" name="1" width="14" sites="4" ic="28.0" re="27.7" llr="77" e_value="3.7e-006" bayes_threshold="7.7211" elapsed_time="0.140000">
 <scores>
 <alphabet_matrix>
 <alphabet_array>
@@ -1526,7 +1526,7 @@ GAG[CG]TG[GAT][GC]
 </contributing_site>
 </contributing_sites>
 </motif>
-<motif id="motif_5" name="5" width="8" sites="4" ic="12.9" re="13.0" llr="36" e_value="7.4e+002" bayes_threshold="7.76155" elapsed_time="0.448000">
+<motif id="motif_5" name="5" width="8" sites="4" ic="12.9" re="13.0" llr="36" e_value="7.4e+002" bayes_threshold="7.76155" elapsed_time="0.452000">
 <scores>
 <alphabet_matrix>
 <alphabet_array>
