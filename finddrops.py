@@ -145,7 +145,7 @@ def plot_drop(start, your_list, main_title, last_expression, decay_start):
     plt.savefig('./results_finddrops/'+main_title+'.png')
 
 
-def find_drops(annotation_file, expression_file, expression_index, expression_threshold=0.0, expression_determinant=4, decay_window=100, header_ann=True, header_exp=True):
+def find_drops(annotation_file, expression_file, expression_index, expression_threshold=0.0, expression_determinant=4, decay_window=150, header_ann=True, header_exp=True):
     """
     Given a pile up file,
     returns the positions with potential termination signals

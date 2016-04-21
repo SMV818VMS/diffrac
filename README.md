@@ -81,7 +81,12 @@ At the end, we obtain (at maximum) 5 most represented motifs in the subsequences
 In our toy model, we detect the following motifs:
 
 **Decay drop**
+
+The expected motif here was GATAGATAGATAGATA
+
 ![decay motif](./results_meme/decay_signals/logo1.png)
 
 **Sharp drop**
+
+The expected motif here was a basic intrinsic terminator
 ![sharp motif](./results_meme/sharp_signals/logo1.png)
