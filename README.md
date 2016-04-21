@@ -56,19 +56,19 @@ The example of two toy examples:
 
 It returns the following figure:
 
-![decay toy](figures/decaytoy.png)
+![decay toy](results_finddrops/SIGN7.png)
 
 And this result in the dictionary:
 
-  > 'SIGN7': [6986, 7211, 7000, 7087, 48.701261488320782, -76.0, -4.6440034020500001]
+  > 'SIGN7': [6936, 7211, 7001, 7087, 42.7662817274757, -71.0, -4.6440034020500001]
 
 **Sharp drop**
 
-![sharp toy](figures/sharptoy.png)
+![sharp toy](results_finddrops/SIGN8.png)
 
 And this result in the dictionary:
 
-  > 'SIGN8': [7899, 8124, 7998, 8000, 29.395014138295107, -179.0, -179.0]
+  > 'SIGN8': [7849, 8124, 7998, 8000, 29.395014138295107, -179.0, -179.0]
 
 ## findmotifs
 

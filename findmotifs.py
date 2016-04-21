@@ -2,11 +2,11 @@
 
 #############################################################
 #
-# finddrops.py
+# findmotifs.py
 #
 # Author : Miravet-Verde, Samuel
 # Written : 04/20/2016
-# Last updated : 04/20/2016
+# Last updated : 04/21/2016
 #
 # Test to detect motifs from sequences given by finddrops
 #
@@ -35,6 +35,17 @@ def maxgap(data, max_gap):
     """
     Arrange data into groups where successive elements
     differ by no more than *maxgap*
+
+    The input has to be a list of list with the structure:
+    [['id1', distance between start decay and last expression],['id2',dist2],...,['idn', distn]]
+
+    The output will be a list of lists with the identifiers clustered together by the distances if
+    the difference between them is less than the maxgap
+    [[id1, id2],[id3,..]]
+
+    Example:
+    in: [['id1',1], ['id2',-1], ['id3',2], ['id4',80], ['id5',81], ['id3',82]]
+    out: [['id1','id2','id3'], ['id4','id5','id3']]
     """
 
     # Sort the list by the second value (distances)
@@ -50,14 +61,12 @@ def maxgap(data, max_gap):
         i = len(list(g))
         groups.append(identifiers[:i])
         identifiers = identifiers[i:]
-
     return groups
 
 
 def group_by(data, method, max_gap=10, k=2):
     """
     Define the number of groups in your dataset and labels them
-
     Possible methods:
     - maxgap
     - kmeans
@@ -73,6 +82,13 @@ def group_by(data, method, max_gap=10, k=2):
 
 
 def subset_dictionary(bigdict, wanted_keys):
+    """
+    Given a dictionary (bigdict) including several keys and a list of keys
+    in list format in wanted_keys
+
+    Return a subsetted dictionary from bigdict with only wanted keys
+    """
+
     return dict((k, bigdict[k]) for k in wanted_keys if k in bigdict)
 
 
@@ -81,7 +97,7 @@ def process_sequences(dictionary, genome, outFile):
     Given a dictionary with {identifier:[features]}
     where feature[0] is the start index of a sequence and feature[1] is the end
 
-    Creates a fasta file to run a meme analysis
+    Creates a multifasta file to run a meme analysis
     """
 
     # The goal is extract several subsequences from a genome given
@@ -97,7 +113,13 @@ def process_sequences(dictionary, genome, outFile):
 
 
 def pymeme(directory):
-    """ Given a set of sequences runs a meme analysis """
+    """
+    Given a directory,
+    List all the fasta files in it and runs a MEME for each file
+
+    By default, the program creates a directory with the name of the fasta where
+    all the results will be located
+    """
 
     print('finding files...')
 
