@@ -234,7 +234,7 @@
 </background_frequencies>
 </model>
 <motifs>
-<motif id="motif_1" name="1" width="14" sites="4" ic="28.0" re="27.7" llr="77" e_value="3.7e-006" bayes_threshold="7.7211" elapsed_time="0.140000">
+<motif id="motif_1" name="1" width="14" sites="4" ic="28.0" re="27.7" llr="77" e_value="3.7e-006" bayes_threshold="7.7211" elapsed_time="0.144000">
 <scores>
 <alphabet_matrix>
 <alphabet_array>
@@ -497,7 +497,7 @@ TAGATAGATAGATA
 </contributing_site>
 </contributing_sites>
 </motif>
-<motif id="motif_2" name="2" width="41" sites="4" ic="44.7" re="44.7" llr="124" e_value="3.4e+001" bayes_threshold="7.52356" elapsed_time="0.264000">
+<motif id="motif_2" name="2" width="41" sites="4" ic="44.7" re="44.7" llr="124" e_value="3.4e+001" bayes_threshold="7.52356" elapsed_time="0.296000">
 <scores>
 <alphabet_matrix>
 <alphabet_array>
@@ -1192,7 +1192,7 @@ TAGATAGATAGATA
 </contributing_site>
 </contributing_sites>
 </motif>
-<motif id="motif_3" name="3" width="8" sites="4" ic="12.9" re="13.3" llr="37" e_value="1.1e+002" bayes_threshold="7.76155" elapsed_time="0.340000">
+<motif id="motif_3" name="3" width="8" sites="4" ic="12.9" re="13.3" llr="37" e_value="1.1e+002" bayes_threshold="7.76155" elapsed_time="0.376000">
 <scores>
 <alphabet_matrix>
 <alphabet_array>
@@ -1359,7 +1359,7 @@ GAG[CG]TG[GAT][GC]
 </contributing_site>
 </contributing_sites>
 </motif>
-<motif id="motif_4" name="4" width="8" sites="4" ic="13.4" re="13.6" llr="38" e_value="1.7e+002" bayes_threshold="7.76155" elapsed_time="0.400000">
+<motif id="motif_4" name="4" width="8" sites="4" ic="13.4" re="13.6" llr="38" e_value="1.7e+002" bayes_threshold="7.76155" elapsed_time="0.444000">
 <scores>
 <alphabet_matrix>
 <alphabet_array>
@@ -1526,7 +1526,7 @@ GAG[CG]TG[GAT][GC]
 </contributing_site>
 </contributing_sites>
 </motif>
-<motif id="motif_5" name="5" width="8" sites="4" ic="12.9" re="13.0" llr="36" e_value="7.4e+002" bayes_threshold="7.76155" elapsed_time="0.452000">
+<motif id="motif_5" name="5" width="8" sites="4" ic="12.9" re="13.0" llr="36" e_value="7.4e+002" bayes_threshold="7.76155" elapsed_time="0.496000">
 <scores>
 <alphabet_matrix>
 <alphabet_array>
