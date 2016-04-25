@@ -19,6 +19,7 @@
 import sys, os
 import numpy as np
 import matplotlib.pyplot as plt
+import utils as u
 import seaborn
 
 #####################
@@ -63,27 +64,7 @@ def intergenic_mean(filename, header=True):
 
     return(sum_distan/float(number_ann))
 
-
-def return_column(filename, index, header=True):
-    """
-    Given a file with columns
-    Returns a list with the column determined by index (starting in 0)
-    """
-
-    fi = open(filename, 'r')
-    column = []
-
-    for line in fi:
-        if header == True:
-            header = False
-        else:
-            column.append(float(line.strip().split()[index]))
-
-    fi.close()
-    return(column)
-
-
-def decay_score(your_list, index):
+def decay_score(your_list, index, wooble=0.0):
     """
     Define the decay score for a list of numbers
 
@@ -104,21 +85,26 @@ def decay_score(your_list, index):
 
     Additionally, if the termination is sharp, the decaysc will match the last expression base, thing that will not occur if the termination
     is in decay.
+
+    Wooble is dependant of the noise in the expression profile. It is considered to determine the decaysc as a 1 or a 2 in the decay tail
+    can be considered as the first with positive expression but it comes from the oscllation of the profile.
     """
 
-    a = np.std(your_list[:index+1])                    # +1 include last expression value
+    stdsc = np.std(your_list[:index+1])                    # +1 include last expression value
     first_derivative = np.diff(your_list[:index+2])     # +2 include first 0
-    b = min(first_derivative)
-    c = list(first_derivative)[index]
+    maxsc = min(first_derivative)
+    dropsc = list(first_derivative)[index]
 
+    # This is more tricky...
     # Define the position where the decay starts:
     # 1. Find the last positive value in the first derivative:
-    positive_indexes = [i for i, e in enumerate(first_derivative) if e > 0]
     # 2. The maximum will correspond to the last position, we have to sum one to point to the
     # first nucleotide after which the expression only decreases
+
+    positive_indexes = [i for i, e in enumerate(first_derivative) if (e-wooble) > 0.0]
     decay_start = max(positive_indexes)+1
 
-    return([a, b, c, decay_start])
+    return([stdsc, maxsc, dropsc, decay_start])
 
 
 def plot_drop(start, your_list, main_title, last_expression, decay_start):
@@ -154,7 +140,7 @@ def plot_drop(start, your_list, main_title, last_expression, decay_start):
     plt.close()
 
 
-def find_drops(annotation_file, expression_file, expression_index, expression_threshold=0.0, expression_determinant=4, decay_window=200, header_ann=True, header_exp=True):
+def find_drops(annotation_file, expression_file, expression_index, expression_threshold=0.0, decay_variability = 0.0, expression_determinant=4, decay_window=200, header_ann=True, header_exp=True):
     """
     Given a pile up file,
     returns the positions with potential termination signals
@@ -188,7 +174,7 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
     # Load the expression profile and start the sliding window process
     # While processing, append the results to the dictionary of results
     results = {}
-    expression = return_column(expression_file, expression_index)
+    expression = u.return_column(expression_file, expression_index)
 
     i = 0
     c = 1
@@ -199,7 +185,7 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
 
         # Only analyze the window if the expression drops below the threshold in the no_exp_window after a value with expression:
         if current_window[:decay_window+1].count(expression_threshold) == 0.0 and current_window[decay_window-1] != 0 and np.mean(current_window[decay_window+1:]) <= expression_threshold:
-            stdsc, maxsc, dropsc, decaysc = decay_score(current_window, decay_window)
+            stdsc, maxsc, dropsc, decaysc = decay_score(current_window, decay_window, decay_variability)
             identifier = 'SIGN'+str(c)
             last_expression = i+decay_window+1
             decay_start = i+decaysc+1
@@ -232,4 +218,4 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
 
 if __name__ == "__main__":
 #    find_drops(annotation_file='./datasets/toyset_annotations.txt', expression_file='./datasets/toyset.txt', expression_index=1, header_exp=False)
-    find_drops(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', expression_index=2, expression_determinant=10)
+    find_drops(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', expression_index=2, decay_variability=2.0, expression_determinant=10)
