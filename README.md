@@ -12,7 +12,7 @@ At the moment, we have the following functions:
  - [*_finddrops_*](#finddrops) : detect drops in the expression profile
  - [*_findmotifs_*](#findmotifs) : clustering of drops and search of common motifs between groups by MEME
 
-Additionally we have some scripts to perform basic computations: _utils.py_ for general problems and _seq\_utils_.py for specific Sequencing problems.
+Additionally we have some scripts to perform basic computations: _utils.py_ for general problems and _seq\_utils.py_ for specific Sequencing problems.
 
 ## create\_toyset
 

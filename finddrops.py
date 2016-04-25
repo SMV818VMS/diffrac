@@ -218,4 +218,4 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
 
 if __name__ == "__main__":
 #    find_drops(annotation_file='./datasets/toyset_annotations.txt', expression_file='./datasets/toyset.txt', expression_index=1, header_exp=False)
-    find_drops(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', expression_index=2, decay_variability=2.0, expression_determinant=10)
+    find_drops(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', expression_index=2, decay_variability=10.0, expression_determinant=12)
