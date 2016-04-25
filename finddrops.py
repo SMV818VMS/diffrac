@@ -71,7 +71,14 @@ def return_column(filename, index, header=True):
     """
 
     fi = open(filename, 'r')
-    column = [float(line.strip().split()[index]) for line in fi]
+    column = []
+
+    for line in fi:
+        if header == True:
+            header = False
+        else:
+            column.append(float(line.strip().split()[index]))
+
     fi.close()
     return(column)
 
@@ -144,8 +151,10 @@ def plot_drop(start, your_list, main_title, last_expression, decay_start):
 
     plt.savefig('./results_finddrops/'+main_title+'.png')
 
+    plt.close()
 
-def find_drops(annotation_file, expression_file, expression_index, expression_threshold=0.0, expression_determinant=4, decay_window=150, header_ann=True, header_exp=True):
+
+def find_drops(annotation_file, expression_file, expression_index, expression_threshold=0.0, expression_determinant=4, decay_window=200, header_ann=True, header_exp=True):
     """
     Given a pile up file,
     returns the positions with potential termination signals
@@ -201,6 +210,15 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
             plot_drop(i, current_window, identifier, last_expression, decay_start)
         i+=1
 
+    # Write the file with the results:
+    # iterate by keys in sorted order
+    fo = open('./results_finddrops/drop_signals.txt','w')
+    fo.write('id\tstart\tend\tdcy_st\tlast_exp\tstdsc\tmaxsc\tdropsc\n')
+    for k in sorted(results.keys()):
+        value = '\t'.join([str(i) for i in results[k]])
+        fo.write(k+'\t'+value+'\n')
+
+    fo.close()
     return results
 
 #####################
@@ -213,4 +231,5 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
 #####################
 
 if __name__ == "__main__":
-    find_drops(annotation_file='./datasets/toyset_annotations.txt', expression_file='./datasets/toyset.txt', expression_index=1, header_exp=False)
+#    find_drops(annotation_file='./datasets/toyset_annotations.txt', expression_file='./datasets/toyset.txt', expression_index=1, header_exp=False)
+    find_drops(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', expression_index=2, expression_determinant=10)
