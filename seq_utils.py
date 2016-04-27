@@ -6,7 +6,7 @@
 #
 # Author : Miravet-Verde, Samuel
 # Written : 04/25/2016
-# Last updated : 04/25/2016
+# Last updated : 04/27/2016
 #
 # Test to detect motifs from sequences given by finddrops
 #
@@ -144,6 +144,7 @@ def no_expression_guesser(percentage=5):
     files = ['/home/smiravet/crg/mycorepo/minusTSSTTS.csv', '/home/smiravet/crg/mycorepo/plusTSSTTS.csv']
     expression = load_expression('./datasets/dsspilesmpn.txt')
     meanstd = {}
+    genes = {}
 
     #2. Assign mean and standard deviation to all the annotations
     for i in [0,1]:
@@ -153,17 +154,26 @@ def no_expression_guesser(percentage=5):
                 start, end = int(start), int(end)
                 if re.match('^[A-Z]{3}[0-9]{3}$', genename):
                     meanstd[genename] = [np.mean(expression.iloc[start:end,i]), np.std(expression.iloc[start:end,i])]
+                    genes[genename]   = 
 
     #3. Isolate N% most expressed genes, sort the dictionary and extract
     # the value mean-1SD for the lowest expressed in that group:
-    number_genes = int(round((len(meanstd)*percentage)/100.0))
-    top_genes = sorted(meanstd.items(), key=lambda i: i[1][0], reverse=True)[:number_genes]
-    lowestinhighest = top_genes[-1]
 
-    no_expression_1SD = lowestinhighest[1][0]-lowestinhighest[1][1]
-    no_expression_2SD = lowestinhighest[1][0]-(lowestinhighest[1][1]*2)
+    if percentage > 0:
+        number_genes = int(round((len(meanstd)*percentage)/100.0))
+        top_genes = sorted(meanstd.items(), key=lambda i: i[1][0], reverse=True)[:number_genes]
+        lowestinhighest = top_genes[-1]
+
+        no_expression_1SD = lowestinhighest[1][0]-lowestinhighest[1][1]
+        no_expression_2SD = lowestinhighest[1][0]-(lowestinhighest[1][1]*2)
+    else:
+        # Obtain the value for general expression
+        
+
+
 
     return no_expression_1SD, no_expression_2SD
+
 
 #####################
 #      CLASSES      #
