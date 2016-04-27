@@ -27,6 +27,13 @@ from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
 from Bio.SeqRecord import SeqRecord
 
+
+# used in hierarchical clustering
+
+from matplotlib import pyplot as plt
+from scipy.cluster.hierarchy import dendogram, linkage
+import numpy as np
+
 #####################
 # GENERAL FUNCTIONS #
 #####################
@@ -95,9 +102,16 @@ def kmeans(data, k):
         identifiers = identifiers[i:]
     return groups
 
+
+def hierar(data):
+
+
+
+
 #####################
 #      CLASSES      #
 #####################
+
 
 
 

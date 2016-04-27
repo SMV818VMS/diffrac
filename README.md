@@ -66,7 +66,7 @@ And this result in the dictionary:
 
 **Sharp drop**
 
-![sharp toy](figures/sharptoy.png)
+![sharp toy](figures/sharpto.png)
 
 And this result in the dictionary:
 
