@@ -112,7 +112,7 @@ def decay_score(your_list, index, wooble=0.0):
         return False
 
 
-def plot_drop(start, your_list, main_title, last_expression, decay_start, horizontal1, horizontal2):
+def plot_drop(start, your_list, main_title, last_expression, decay_start, horizontal1=None, horizontal2=None):
     """
     Plot the drop
         start = defines the first position for the x label
@@ -131,14 +131,18 @@ def plot_drop(start, your_list, main_title, last_expression, decay_start, horizo
     ax1 = fig.add_subplot(111)
 
     ax1.set_title(main_title)
-    ax1.set_xlabel('genome position (pb)')
-    ax1.set_ylabel('expression counts')
+    ax1.set_xlabel('base position')
+    ax1.set_ylabel('log2(reads)')
 
-    ax1.plot(x, y, c='k', label='expression', linewidth=2)
-    ax1.axvline(x=last_expression, c='b', label='last_expression', linewidth=2)
-    ax1.axvline(x=decay_start, c='r', label='decay_start', linewidth=2)
-    ax1.axhline(y=horizontal1, c='0.25', linestyle=':', label='expression_th', linewidth=1)
-    ax1.axhline(y=horizontal2, c='0.5', linestyle='--', label='no_expression_th', linewidth=1)
+    ax1.plot(x, y, c='k', label='expression', linewidth=2.3)
+    ax1.axvline(x=last_expression, c='b', label='last_expression', linewidth=1.8, alpha=0.5)
+    ax1.axvline(x=decay_start, c='r', label='decay_start', linewidth=1.8, alpha=0.5)
+
+    # Plot horizontals if present
+    if horizontal1:
+        ax1.axhline(y=horizontal1, c='0.25', linestyle=':', label='expression_th', linewidth=1)
+    if horizontal2:
+        ax1.axhline(y=horizontal2, c='0.5', linestyle='--', label='no_expression_th', linewidth=1)
 
     leg = ax1.legend(fontsize='medium')
 
@@ -147,7 +151,7 @@ def plot_drop(start, your_list, main_title, last_expression, decay_start, horizo
     plt.close()
 
 
-def find_drops(annotation_file, expression_file, expression_index, expression_threshold=5, expression_determinant=4, decay_window=100, header_ann=True, header_exp=True, norm=True, decay_var = True, verbose = True):
+def find_drops(annotation_file, expression_file, expression_index, additional_id, expression_threshold=5, expression_determinant=4, decay_window=200, header_ann=True, header_exp=True, norm=True, decay_var = True, verbose = True):
     """
     Given a pile up file,
     returns the positions with potential termination signals
@@ -224,9 +228,10 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
         # if all(i >= expression_th for i in current_window[:decay_window+1]) and all(i <= no_expression_th for i in current_window[decay_window+1:]):
         # if np.mean(current_window[:decay_window+1]) >= expression_th and current_window[decay_window-1] > expression_th and all(i <= no_expression_th for i in current_window[decay_window+1:]):
         # if np.mean(current_window[:decay_window+1]) >= no_expression_th and current_window[decay_window-1] >= no_expression_th and all(i <= no_expression_th for i in current_window[decay_window+1:]):
-        if all(i > no_expression_th for i in current_window[:decay_window+1]) and current_window[0] >= expression_th and all(i < no_expression_th for i in current_window[decay_window+1:]):
+        # if all(i > no_expression_th for i in current_window[:decay_window+1]) and current_window[0] >= expression_th and all(i < no_expression_th for i in current_window[decay_window+1:]):
+        if all(i > no_expression_th for i in current_window[:decay_window+1]) and all(i < no_expression_th for i in current_window[decay_window+1:]):
             stdsc, maxsc, dropsc, decaysc = decay_score(current_window, decay_window, decay_variability)
-            identifier = 'SIGN'+str(c)
+            identifier = 'SIGN'+str(c)+additional_id
             last_expression = i+decay_window+1
             decay_start = i+decaysc+1
             results[identifier] = [i, i+sliding_window, decay_start, last_expression, stdsc, maxsc, dropsc]
@@ -234,6 +239,7 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
 
             # Plot the drop
             plot_drop(i, current_window, identifier, last_expression, decay_start, expression_th, no_expression_th)
+            plot_drop(i, np.diff(current_window), identifier+'deriv', last_expression, decay_start)
         i+=1
 
     # Write the file with the results:
@@ -257,6 +263,6 @@ def find_drops(annotation_file, expression_file, expression_index, expression_th
 #####################
 
 if __name__ == "__main__":
-#   find_drops(annotation_file='./datasets/toyset_annotations.txt', expression_file='./datasets/toyset.txt', expression_index=1, header_exp=False)
+     find_drops(annotation_file='./datasets/toyset_annotations.txt', expression_file='./datasets/toyset.txt', additional_id='_toy', expression_index=1, expression_threshold=0, header_exp=False, decay_var=False)
 
-    find_drops(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', expression_index=2, expression_threshold=10, expression_determinant=10, decay_var=False)
+#    find_drops(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', additional_id = '_plus', expression_index=2, expression_threshold=0, expression_determinant=10, decay_var=False)

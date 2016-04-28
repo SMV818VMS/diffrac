@@ -47,7 +47,7 @@ def pseudo_log2(i):
     return np.log2(i+1)
 
 
-def load_expression(fil, sep='\t', header=0):
+def load_expression(fil, sep='\t', header=0, log=True):
     """
     Given a expression file with two columns, one per strand
     Returns a dataframe of it
@@ -81,7 +81,8 @@ def load_expression(fil, sep='\t', header=0):
         df.columns = ['plus_'+sample_name, 'minus_'+sample_name]
 
     # Log2 transformation
-    df = df.apply(pseudo_log2)
+    if log:
+        df = df.apply(pseudo_log2)
 
     return df
 
@@ -132,6 +133,27 @@ def merge_expression_experiments(directory, norm=True):
 
 # GENOME EXPRESSION INFORMATION
 
+
+def annotated_expression(log=True):
+
+    #1. Load data and prepare a dictionary
+    files = ['/home/smiravet/crg/mycorepo/minusTSSTTS.csv', '/home/smiravet/crg/mycorepo/plusTSSTTS.csv']
+    expression = load_expression('./datasets/dsspilesmpn.txt', log=log)
+    expressed = []
+
+    #2. Assign mean and standard deviation to all the annotations
+    for i in [0,1]:
+        with open(files[i], 'r') as fi:
+            for line in fi:
+                genename, start, end = line.strip().split()
+                start, end = int(start), int(end)
+                if re.match('^[A-Z]{3}[0-9]{3}$', genename):
+                    expressed += list(expression.iloc[start:end, i])
+
+
+    return expressed
+
+
 def no_expression_guesser(percentage=5):
     """
     Define which is the expected value to consider the expression is dropped
@@ -143,8 +165,8 @@ def no_expression_guesser(percentage=5):
     #1. Load data and prepare a dictionary
     files = ['/home/smiravet/crg/mycorepo/minusTSSTTS.csv', '/home/smiravet/crg/mycorepo/plusTSSTTS.csv']
     expression = load_expression('./datasets/dsspilesmpn.txt')
-    meanstd = {}
-    genes = {}
+    meanstd   = {}
+    expressed = []
 
     #2. Assign mean and standard deviation to all the annotations
     for i in [0,1]:
@@ -154,7 +176,8 @@ def no_expression_guesser(percentage=5):
                 start, end = int(start), int(end)
                 if re.match('^[A-Z]{3}[0-9]{3}$', genename):
                     meanstd[genename] = [np.mean(expression.iloc[start:end,i]), np.std(expression.iloc[start:end,i])]
-                    genes[genename]   = 
+                    expressed        += list(expression.iloc[start:end, i])
+
 
     #3. Isolate N% most expressed genes, sort the dictionary and extract
     # the value mean-1SD for the lowest expressed in that group:
@@ -168,9 +191,11 @@ def no_expression_guesser(percentage=5):
         no_expression_2SD = lowestinhighest[1][0]-(lowestinhighest[1][1]*2)
     else:
         # Obtain the value for general expression
-        
+        tmean = np.mean(expressed)
+        tstdv = np.std(expressed)
 
-
+        no_expression_1SD = tmean
+        no_expression_2SD = tmean - tstdv
 
     return no_expression_1SD, no_expression_2SD
 
@@ -185,6 +210,6 @@ def no_expression_guesser(percentage=5):
 #####################
 
 if __name__ == "__main__":
-    print(no_expression_guesser(100))
+    print(no_expression_guesser(0))
     # merge_expression_experiments('/home/smiravet/Dropbox/mycorepo/systems_biology/Transcriptome/Rawdata/')
 
