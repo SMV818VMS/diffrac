@@ -160,6 +160,7 @@ def no_expression_guesser(percentage=5):
     top_genes = sorted(meanstd.items(), key=lambda i: i[1][0], reverse=True)[:number_genes]
     lowestinhighest = top_genes[-1]
 
+    print(top_genes)
     no_expression_1SD = lowestinhighest[1][0]-lowestinhighest[1][1]
     no_expression_2SD = lowestinhighest[1][0]-(lowestinhighest[1][1]*2)
 
@@ -175,6 +176,6 @@ def no_expression_guesser(percentage=5):
 #####################
 
 if __name__ == "__main__":
-    print(no_expression_guesser(10))
+    print(no_expression_guesser(100))
     # merge_expression_experiments('/home/smiravet/Dropbox/mycorepo/systems_biology/Transcriptome/Rawdata/')
 
