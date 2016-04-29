@@ -268,7 +268,6 @@ def rude_finder(decay_window=100, norm=False):
     # window size to run the algorithm and the expression values we consider
 
     intergenic_distance_mean = 100
-
     # 2. With this value we have the expected size of regions with expression equal 0.
     # The algorithm runs windows along the genome trying to detect these regions falling to 0 and looking a
     # defined number of bases before and computes a decay factor.
@@ -333,6 +332,8 @@ def rude_finder(decay_window=100, norm=False):
 def find_drops2(annotation_file, expression_file, expression_index, additional_id, expression_determinant=4, decay_window=100, header_ann=True, header_exp=True):
     intergenic_distance_mean = intergenic_mean(annotation_file)
 
+    expression_th, no_expression_th = sequ.no_expression_guesser(0, log=False)
+
     no_exp_window  = int(round(intergenic_distance_mean/expression_determinant))
     sliding_window = int(round(decay_window + no_exp_window))
 
@@ -353,7 +354,7 @@ def find_drops2(annotation_file, expression_file, expression_index, additional_i
             results[identifier] = [i, i+sliding_window, decay_start, last_expression, stdsc, maxsc, dropsc]
             c += 1
             # Plot the drop
-            plot_drop(i, current_window, identifier, last_expression, decay_start)
+            plot_drop(i, current_window, identifier, last_expression, decay_start, expression_th)
         i+=1
 
     # Write the file with the results:
