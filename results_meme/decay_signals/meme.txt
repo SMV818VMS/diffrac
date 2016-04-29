@@ -213,7 +213,7 @@ GATAGATAGATAGATAGATAGATAGATAGATA[CG]
 
 
 
-Time  0.18 secs.
+Time  0.20 secs.
 
 ********************************************************************************
 
@@ -376,7 +376,7 @@ letter-probability matrix: alength= 4 w= 37 nsites= 4 E= 7.1e+000
 
 
 
-Time  0.32 secs.
+Time  0.34 secs.
 
 ********************************************************************************
 
@@ -481,7 +481,7 @@ letter-probability matrix: alength= 4 w= 8 nsites= 4 E= 2.3e+001
 
 
 
-Time  0.41 secs.
+Time  0.44 secs.
 
 ********************************************************************************
 
@@ -598,7 +598,7 @@ letter-probability matrix: alength= 4 w= 14 nsites= 4 E= 1.9e+002
 
 
 
-Time  0.48 secs.
+Time  0.50 secs.
 
 ********************************************************************************
 
@@ -704,7 +704,7 @@ letter-probability matrix: alength= 4 w= 10 nsites= 3 E= 4.5e+002
 
 
 
-Time  0.54 secs.
+Time  0.57 secs.
 
 ********************************************************************************
 

@@ -160,6 +160,9 @@ def no_expression_guesser(percentage=5):
 
     To compute it, this takes the mean expression value for codifying regions
     and returns the mean + 1Standard Deviation
+
+    If percentage is set to 0, it takes into consideration the expression of
+    all the annotated genes
     """
 
     #1. Load data and prepare a dictionary

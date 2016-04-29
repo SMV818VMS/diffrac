@@ -22,6 +22,8 @@ import matplotlib.pyplot as plt
 import utils as u
 import seq_utils as sequ
 import seaborn
+from scipy.signal import savgol_filter
+
 
 #####################
 # GENERAL FUNCTIONS #
@@ -112,7 +114,7 @@ def decay_score(your_list, index, wooble=0.0):
         return False
 
 
-def plot_drop(start, your_list, main_title, last_expression, decay_start, horizontal1=None, horizontal2=None):
+def plot_drop(start, your_list, main_title, last_expression, decay_start, horizontal1=None, horizontal2=None, smooth=True):
     """
     Plot the drop
         start = defines the first position for the x label
@@ -134,7 +136,12 @@ def plot_drop(start, your_list, main_title, last_expression, decay_start, horizo
     ax1.set_xlabel('base position')
     ax1.set_ylabel('log2(reads)')
 
-    ax1.plot(x, y, c='k', label='expression', linewidth=2.3)
+    if smooth:
+        ax1.plot(x, y, c='0.7', label='expression', linewidth=1.8, alpha=0.7)
+        ax1.plot(x, savgol_filter(y, 51, 8), c='k', label='Savitzky Golay expression', linewidth=2.3, alpha=0.8)
+    else:
+        ax1.plot(x, y, c='k', label='expression', linewidth=2.3, alpha=0.8)
+
     ax1.axvline(x=last_expression, c='b', label='last_expression', linewidth=1.8, alpha=0.5)
     ax1.axvline(x=decay_start, c='r', label='decay_start', linewidth=1.8, alpha=0.5)
 
@@ -144,7 +151,7 @@ def plot_drop(start, your_list, main_title, last_expression, decay_start, horizo
     if horizontal2:
         ax1.axhline(y=horizontal2, c='0.5', linestyle='--', label='no_expression_th', linewidth=1)
 
-    leg = ax1.legend(fontsize='medium')
+    leg = ax1.legend(fontsize='small')
 
     plt.savefig('./results_finddrops/'+main_title+'.png')
 
@@ -239,7 +246,7 @@ def find_drops(annotation_file, expression_file, expression_index, additional_id
 
             # Plot the drop
             plot_drop(i, current_window, identifier, last_expression, decay_start, expression_th, no_expression_th)
-            plot_drop(i, np.diff(current_window), identifier+'deriv', last_expression, decay_start)
+            # plot_drop(i, np.diff(current_window), identifier+'deriv', last_expression, decay_start)
         i+=1
 
     # Write the file with the results:
@@ -253,16 +260,121 @@ def find_drops(annotation_file, expression_file, expression_index, additional_id
     fo.close()
     return results
 
+
+def rude_finder(decay_window=100, norm=False):
+    """
+    """
+    # 1. First we have to define the mean distance between annotations to set up a correct
+    # window size to run the algorithm and the expression values we consider
+
+    intergenic_distance_mean = 100
+
+    # 2. With this value we have the expected size of regions with expression equal 0.
+    # The algorithm runs windows along the genome trying to detect these regions falling to 0 and looking a
+    # defined number of bases before and computes a decay factor.
+    #      - This decay factor is computed as the number of bases we need to pass from the maximum expression
+    #      value in the window until we arrive to 1/4 intergenic distance number of zeros.
+
+    # Define the windows to process the expression profile
+    no_exp_window  = int(round(intergenic_distance_mean))
+    sliding_window = int(round(decay_window + no_exp_window))
+
+    # Load the expression profile and start the sliding window process
+    # While processing, append the results to the dictionary of results
+    results = {}
+    expression = u.return_column('./datasets/dsspilesmpn.txt',2)
+
+    # Normalize if selected
+    if norm:
+        expression = [np.log2(x+1) for x in expression]
+
+    # Windowing
+    i = 0
+    c = 1
+
+    while i < len(expression)-sliding_window:
+        # Define the window of work
+        current_window = expression[i:i+sliding_window]
+
+        # Only analyze the window if the expression drops below the threshold in the no_exp_window after a value with expression:
+        if all(i > 0 for i in current_window[:decay_window+1]) and all(i <= 0 for i in current_window[decay_window+1:]):
+            stdsc, maxsc, dropsc, decaysc = decay_score(current_window, decay_window)
+            identifier = 'SIGN'+str(c)+'rude'
+            last_expression = i+decay_window+1
+            decay_start = i+decaysc+1
+            results[identifier] = [i, i+sliding_window, decay_start, last_expression, stdsc, maxsc, dropsc]
+            c += 1
+
+            # Plot the drop
+            plot_drop(i, current_window, identifier, last_expression, decay_start)
+
+            x = list(range(i, i+len(current_window)))
+            u.regression(x, current_window, decay_window+1, title=identifier)
+
+        i+=1
+
+    # Write the file with the results:
+    # iterate by keys in sorted order
+    fo = open('./results_finddrops/drop_signals'+additional_id+'.txt','w')
+    fo.write('id\tstart\tend\tdcy_st\tlast_exp\tstdsc\tmaxsc\tdropsc\n')
+    for k in sorted(results.keys()):
+        value = '\t'.join([str(i) for i in results[k]])
+        fo.write(k+'\t'+value+'\n')
+
+    fo.close()
+    return results
+
+
 #####################
 #      CLASSES      #
 #####################
 
+
+def find_drops2(annotation_file, expression_file, expression_index, additional_id, expression_determinant=4, decay_window=100, header_ann=True, header_exp=True):
+    intergenic_distance_mean = intergenic_mean(annotation_file)
+
+    no_exp_window  = int(round(intergenic_distance_mean/expression_determinant))
+    sliding_window = int(round(decay_window + no_exp_window))
+
+    results = {}
+    expression = u.return_column(expression_file, expression_index)
+
+    decay_variability = 0.0
+
+    i = 0
+    c = 1
+    while i < len(expression)-sliding_window:
+        current_window = expression[i:i+sliding_window]
+        if all(i > 0 for i in current_window[:decay_window+1]) and all(i <= 0 for i in current_window[decay_window+1:]):
+            stdsc, maxsc, dropsc, decaysc = decay_score(current_window, decay_window, decay_variability)
+            identifier = 'SIGN'+str(c)+additional_id
+            last_expression = i+decay_window+1
+            decay_start = i+decaysc+1
+            results[identifier] = [i, i+sliding_window, decay_start, last_expression, stdsc, maxsc, dropsc]
+            c += 1
+            # Plot the drop
+            plot_drop(i, current_window, identifier, last_expression, decay_start)
+        i+=1
+
+    # Write the file with the results:
+    # iterate by keys in sorted order
+    fo = open('./results_finddrops/drop_signals'+additional_id+'.txt','w')
+    fo.write('id\tstart\tend\tdcy_st\tlast_exp\tstdsc\tmaxsc\tdropsc\n')
+    for k in sorted(results.keys()):
+        value = '\t'.join([str(i) for i in results[k]])
+        fo.write(k+'\t'+value+'\n')
+
+    fo.close()
+    return results
 
 #####################
 #     EXECUTION     #
 #####################
 
 if __name__ == "__main__":
-     find_drops(annotation_file='./datasets/toyset_annotations.txt', expression_file='./datasets/toyset.txt', additional_id='_toy', expression_index=1, expression_threshold=0, header_exp=False, decay_var=False)
+    # find_drops(annotation_file='./datasets/toyset_annotations.txt', expression_file='./datasets/toyset.txt', additional_id='_toy', expression_index=1, expression_threshold=0, header_exp=False, decay_var=False)
 
-#    find_drops(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', additional_id = '_plus', expression_index=2, expression_threshold=0, expression_determinant=10, decay_var=False)
+    # find_drops(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', additional_id = '_plus', expression_index=2, expression_threshold=0, expression_determinant=10, decay_var=False)
+
+    # rude_finder()
+    find_drops2(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', additional_id = '_bruto', expression_index=2, expression_determinant=10)

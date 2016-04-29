@@ -21,7 +21,7 @@ import itertools
 import numpy as np
 import glob
 from scipy.cluster.vq import kmeans, vq
-from finddrops import find_drops
+from finddrops import find_drops, find_drops2
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
@@ -180,8 +180,8 @@ def pymeme(directory):
 if __name__ == "__main__":
 
     # Generate the list of candidates
-    candidates = find_drops(annotation_file='./datasets/toyset_annotations.txt', expression_file='./datasets/toyset.txt', expression_index=1, header_exp=False)
-
+    # candidates = find_drops(annotation_file='./datasets/toyset_annotations.txt', expression_file='./datasets/toyset.txt', expression_index=1, header_exp=False)
+    candidates = find_drops2(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', additional_id = '_bruto', expression_index=2, expression_determinant=10)
     # This is a dictionary, to group we have to select a feature explaining more differences, in this dictionary we have different features:
     # 'SIGN7': [6986, 7211, 7001, 7087, 48.566111083270691, -68.0, -4.6440034020500001]
     # ident : [start, end,decay_p, 0exp, std expression, max_change, diff exp btw last and 0exp]
@@ -194,15 +194,18 @@ if __name__ == "__main__":
         distance = values[3]-values[2]
         data.append([key, distance])
 
-    # Group by
-    groups = group_by(data, 'maxgap')
+#    # Group by
+#    groups = group_by(data, 'maxgap')
+#
+#    # Extract subsequences and write them in separate files:
+#    sharp_signals = subset_dictionary(candidates, groups[0])
+#    decay_signals = subset_dictionary(candidates, groups[1])
+#
+#    process_sequences(sharp_signals, './datasets/toy_genome.fasta', './results_meme/input_sequences/sharp_signals.fasta')
+#    process_sequences(decay_signals, './datasets/toy_genome.fasta', './results_meme/input_sequences/decay_signals.fasta')
 
-    # Extract subsequences and write them in separate files:
-    sharp_signals = subset_dictionary(candidates, groups[0])
-    decay_signals = subset_dictionary(candidates, groups[1])
+    process_sequences(candidates, './datasets/mpn_genome.fasta', './results_meme/input_sequences/bruto_test.fasta')
 
-    process_sequences(sharp_signals, './datasets/toy_genome.fasta', './results_meme/input_sequences/sharp_signals.fasta')
-    process_sequences(decay_signals, './datasets/toy_genome.fasta', './results_meme/input_sequences/decay_signals.fasta')
 
     # Run pymeme
     pymeme('./results_meme/input_sequences/')
