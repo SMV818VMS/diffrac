@@ -91,12 +91,49 @@ def nucleotide_frequency(sequences):
 
     plt.show()
 
-
-# TRANSCRIPTOMIC DATA LOADING AND INTEGRATION
+# NORMALIZATION
 
 def pseudo_log2(i):
     return np.log2(i+1)
 
+
+def normalization(df, positive=True):
+    """
+    Given a df,
+    returns the df normalized
+    """
+
+    if positive:
+        df_norm = (df - df.min()) / (df.max() - df.min())
+    else:
+        df_norm = (df - df.mean()) / (df.max() - df.min())
+    return df_norm
+
+
+def rRNA_normalization():
+    """
+    Given a dataframe/array
+    Normalize using the rRNA as reference
+    """
+
+    # Extract the information from the rRNA
+    annotation = '/home/smiravet/crg/mycorepo/plusTSSTTS.csv'
+    expression = load_expression('./datasets/dsspilesmpn.txt', log=False)
+    expressed = []
+
+    #2. Assign mean and standard deviation to all the annotations
+    with open(annotation, 'r') as fi:
+        for line in fi:
+            genename, start, end = line.strip().split()
+            start, end = int(start), int(end)
+            if re.match('^[Mpnr][1-3]{2}$', genename):
+                expressed += list(expression.iloc[start:end, i])
+
+    print expressed
+
+
+
+# TRANSCRIPTOMIC DATA LOADING AND INTEGRATION
 
 def load_expression(fil, sep='\t', header=0, log=True):
     """
@@ -136,19 +173,6 @@ def load_expression(fil, sep='\t', header=0, log=True):
         df = df.apply(pseudo_log2)
 
     return df
-
-
-def normalization(df, positive=True):
-    """
-    Given a df,
-    returns the df normalized
-    """
-
-    if positive:
-        df_norm = (df - df.min()) / (df.max() - df.min())
-    else:
-        df_norm = (df - df.mean()) / (df.max() - df.min())
-    return df_norm
 
 
 def merge_expression_experiments(directory, norm=True):
@@ -267,12 +291,13 @@ if __name__ == "__main__":
     # print(no_expression_guesser(0))
     # merge_expression_experiments('/home/smiravet/Dropbox/mycorepo/systems_biology/Transcriptome/Rawdata/')
 
-    sequences = []
-
-    with open('./results_meme/input_sequences/bruto_test.fasta') as fi:
-        for line in fi:
-            line= line.strip()
-            if not line.startswith('>'):
-                sequences.append(line)
-
-    nucleotide_frequency(sequences)
+#    sequences = []
+#
+#    with open('./results_meme/input_sequences/bruto_test.fasta') as fi:
+#        for line in fi:
+#            line= line.strip()
+#            if not line.startswith('>'):
+#                sequences.append(line)
+#
+#    nucleotide_frequency(sequences)
+    rRNA_

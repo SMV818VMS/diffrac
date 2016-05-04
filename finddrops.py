@@ -261,7 +261,7 @@ def find_drops(annotation_file, expression_file, expression_index, additional_id
     return results
 
 
-def rude_finder(decay_window=100, norm=False):
+def regression_finder(decay_window=100, norm=False):
     """
     """
     # 1. First we have to define the mean distance between annotations to set up a correct
@@ -324,12 +324,9 @@ def rude_finder(decay_window=100, norm=False):
     return results
 
 
-#####################
-#      CLASSES      #
-#####################
+def bruto_drops(annotation_file, expression_file, expression_index, additional_id, expression_determinant=4, decay_window=100, header_ann=True, header_exp=True):
+    """ Same approach but ruder... """
 
-
-def find_drops2(annotation_file, expression_file, expression_index, additional_id, expression_determinant=4, decay_window=100, header_ann=True, header_exp=True):
     intergenic_distance_mean = intergenic_mean(annotation_file)
 
     expression_th, no_expression_th = sequ.no_expression_guesser(0, log=False)
@@ -354,12 +351,12 @@ def find_drops2(annotation_file, expression_file, expression_index, additional_i
             results[identifier] = [i, i+sliding_window, decay_start, last_expression, stdsc, maxsc, dropsc]
             c += 1
             # Plot the drop
-            plot_drop(i, current_window, identifier, last_expression, decay_start, expression_th)
+            plot_drop(i, current_window,identifier, last_expression, decay_start, expression_th)
         i+=1
 
     # Write the file with the results:
     # iterate by keys in sorted order
-    fo = open('./results_finddrops/drop_signals'+additional_id+'.txt','w')
+    fo = open('./results_finddrops/results_'+additional_id+'.txt','w')
     fo.write('id\tstart\tend\tdcy_st\tlast_exp\tstdsc\tmaxsc\tdropsc\n')
     for k in sorted(results.keys()):
         value = '\t'.join([str(i) for i in results[k]])
@@ -367,6 +364,12 @@ def find_drops2(annotation_file, expression_file, expression_index, additional_i
 
     fo.close()
     return results
+
+
+#####################
+#      CLASSES      #
+#####################
+
 
 #####################
 #     EXECUTION     #
@@ -378,4 +381,5 @@ if __name__ == "__main__":
     # find_drops(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', additional_id = '_plus', expression_index=2, expression_threshold=0, expression_determinant=10, decay_var=False)
 
     # rude_finder()
-    find_drops2(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', additional_id = '_bruto', expression_index=2, expression_determinant=10)
+
+    bruto_drops(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', additional_id = '_bruto' , expression_index=2, expression_determinant=10)

@@ -66,11 +66,17 @@ And this result in the dictionary:
 
 **Sharp drop**
 
-![sharp toy](figures/sharpto.png)
+![sharp toy](figures/sharptoy.png)
 
 And this result in the dictionary:
 
   > 'SIGN8': [7849, 8124, 7998, 8000, 29.395014138295107, -179.0, -179.0]
+
+There are three different modes to run this script:
+
+  - original: the expression thresholds are delimited in base to general expression in the annotated file. To do this we have the function no expression guesser (file seq\_utils) that takes the annotated genes, select a percentage of most expressed (given by arguments, 5 means we select the 5 most expressed genes, 0 takes all the genes into consideration). With this we define two different values the mean plus 1 standard deviation and the mean plus 2 standard deviation, given this we define that to consider a region as expressed we have to be over the first value and the drop will be considered for regions under the second value.
+  - regression: this approach takes into consideration the slope of the regression fit for the window being expressed. If the slope is a small number that means we will have a sharp decay after. The idea is to be able to discriminate between the two types of possible decays depending if the points at the beginning of the regression are over the fitting line (exponential decay) or under (logarithmic decay).
+  - bruto: this is the rudest approach but the one that gives more results. It just detects when we pass to a 0 expression value
 
 ## findmotifs
 

@@ -21,7 +21,7 @@ import itertools
 import numpy as np
 import glob
 from scipy.cluster.vq import kmeans, vq
-from finddrops import find_drops, find_drops2
+from finddrops import find_drops, bruto_drops 
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.Alphabet import generic_dna
@@ -181,7 +181,7 @@ if __name__ == "__main__":
 
     # Generate the list of candidates
     # candidates = find_drops(annotation_file='./datasets/toyset_annotations.txt', expression_file='./datasets/toyset.txt', expression_index=1, header_exp=False)
-    candidates = find_drops2(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', additional_id = '_bruto', expression_index=2, expression_determinant=10)
+    candidates = bruto_drops(annotation_file='../mycorepo/plusTSSTTS.csv', expression_file='./datasets/dsspilesmpn.txt', additional_id = '_bruto', expression_index=2, expression_determinant=10)
     # This is a dictionary, to group we have to select a feature explaining more differences, in this dictionary we have different features:
     # 'SIGN7': [6986, 7211, 7001, 7087, 48.566111083270691, -68.0, -4.6440034020500001]
     # ident : [start, end,decay_p, 0exp, std expression, max_change, diff exp btw last and 0exp]
