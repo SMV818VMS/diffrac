@@ -158,7 +158,7 @@ def plot_drop(start, your_list, main_title, last_expression, decay_start, horizo
     plt.close()
 
 
-def find_drops(annotation_file, expression_file, expression_index, additional_id, expression_threshold=5, expression_determinant=4, decay_window=200, header_ann=True, header_exp=True, norm=True, decay_var = True, verbose = True):
+def find_drops(annotation_file, expression_file, expression_index, additional_id, expression_threshold=5, expression_determinant=4, decay_window=1000, header_ann=True, header_exp=True, norm=True, decay_var = True, verbose = True):
     """
     Given a pile up file,
     returns the positions with potential termination signals
@@ -198,6 +198,7 @@ def find_drops(annotation_file, expression_file, expression_index, additional_id
     no_exp_window  = int(round(intergenic_distance_mean/expression_determinant))
     sliding_window = int(round(decay_window + no_exp_window))
 
+
     if verbose:
         print('No expression window size: '+str(no_exp_window))
         print('Total window size: '+str(sliding_window))
@@ -236,7 +237,7 @@ def find_drops(annotation_file, expression_file, expression_index, additional_id
         # if np.mean(current_window[:decay_window+1]) >= expression_th and current_window[decay_window-1] > expression_th and all(i <= no_expression_th for i in current_window[decay_window+1:]):
         # if np.mean(current_window[:decay_window+1]) >= no_expression_th and current_window[decay_window-1] >= no_expression_th and all(i <= no_expression_th for i in current_window[decay_window+1:]):
         # if all(i > no_expression_th for i in current_window[:decay_window+1]) and current_window[0] >= expression_th and all(i < no_expression_th for i in current_window[decay_window+1:]):
-        if all(i > no_expression_th for i in current_window[:decay_window+1]) and all(i < no_expression_th for i in current_window[decay_window+1:]):
+        if all(i > no_expression_th for i in current_window[800:decay_window+1]) and all(i < no_expression_th for i in current_window[decay_window+1:]):
             stdsc, maxsc, dropsc, decaysc = decay_score(current_window, decay_window, decay_variability)
             identifier = 'SIGN'+str(c)+additional_id
             last_expression = i+decay_window+1
@@ -324,7 +325,7 @@ def regression_finder(decay_window=100, norm=False):
     return results
 
 
-def bruto_drops(annotation_file, expression_file, expression_index, additional_id, expression_determinant=4, decay_window=100, header_ann=True, header_exp=True):
+def bruto_drops(annotation_file, expression_file, expression_index, additional_id, expression_determinant=4, decay_window=1000, header_ann=True, header_exp=True):
     """ Same approach but ruder... """
 
     intergenic_distance_mean = intergenic_mean(annotation_file)
@@ -343,7 +344,7 @@ def bruto_drops(annotation_file, expression_file, expression_index, additional_i
     c = 1
     while i < len(expression)-sliding_window:
         current_window = expression[i:i+sliding_window]
-        if all(i > 0 for i in current_window[:decay_window+1]) and all(i <= 0 for i in current_window[decay_window+1:]):
+        if all(i > 0 for i in current_window[900:decay_window+1]) and all(i <= 0 for i in current_window[decay_window+1:]):
             stdsc, maxsc, dropsc, decaysc = decay_score(current_window, decay_window, decay_variability)
             identifier = 'SIGN'+str(c)+additional_id
             last_expression = i+decay_window+1
